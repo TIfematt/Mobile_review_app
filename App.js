@@ -1,20 +1,33 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useCallback } from 'react';
+import Home from './screens/home';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen'; //import SplashScreen so that when the fonts are not loaded, we can continue to show SplashScreen.
+import { View } from 'react-native';
+
+SplashScreen.preventAutoHideAsync(); //This prevents SplashScreen from auto hiding while the fonts are loaded.
 
 export default function App() {
+
+  const [fontsLoaded] = useFonts({
+    'nunito-regular': require('./assets/fonts/Nunito-Regular.ttf'),
+    'nunito-bold': require('./assets/fonts/Nunito-Bold.ttf'),
+  });
+
+  
+  // After the custom fonts have loaded, we can hide the splash screen and display the app screen.
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View  onLayout={onLayoutRootView}>
+      <Home />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
